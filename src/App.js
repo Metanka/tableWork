@@ -1,25 +1,43 @@
-import logo from './logo.svg';
-import './App.css';
+import React, {useEffect, useState} from 'react';
+import {apiMenu} from './api';
+import Table from './Table';
+import {makeStyles, useTheme} from '@material-ui/core/styles';
+import Navigation from './Navigation';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+const drawerWidth = 240;
+
+const useStyles = makeStyles((theme) => ({
+    toolbar: theme.mixins.toolbar,
+    drawerPaper: {
+        width: drawerWidth,
+    },
+    content: {
+        flexGrow: 1,
+        padding: theme.spacing(3),
+    },
+    root: {
+        display: 'flex',
+    },
+}));
+
+const App = (props) => {
+    const classes = useStyles();
+    const [store, setStore] = useState([])
+
+    useEffect(() =>
+        apiMenu.getMenu().then(data => setStore(data.value.data)).catch(err => console.log(err)), []
+    )
+
+    return (
+        <div className={classes.root}>
+            <Navigation />
+            <main className={classes.content}>
+                <div className={classes.toolbar} />
+                <Table />
+            </main>
+        </div>
+    )
 }
 
 export default App;
