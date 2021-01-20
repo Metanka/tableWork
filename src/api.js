@@ -31,3 +31,9 @@ export const apiMenu = new Api({
     }
   });
 
+  export const apiTable = new Api({
+    url: 'https://api.storage.vigdorov.ru/store/table_data?hook=2b34ea3e-4655-4899-9ba4-85ba12304776',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });

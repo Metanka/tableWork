@@ -1,19 +1,30 @@
 import styled from 'styled-components'
 
 const Styles = styled.div`
- overflow: hidden;
-
+    .container {
+        max-width: 60vw;
+        overflow-x: scroll;
+        overflow-y: scroll;
+        @media screen and (max-width: 760px) {
+            width: 50vw;
+        }
+        @media screen and (max-width: 599px) {
+            width: 90vw;
+            max-width: 90vw;
+        }
+    }
   .box {
       display: flex;
+      width: fit-content;
       flex-direction: column;
-      padding: 1rem;
-  
+      padding-bottom: 15px;
+      overflow-x: scroll;
+      overflow-y: scroll;
   }
   .table {
     display: inline-block;
     border-spacing: 0;
     border: 1px solid black;
-
     .tr {
       :last-child {
         .td {
@@ -24,11 +35,11 @@ const Styles = styled.div`
 
     .th,
     .td {
+       
       margin: 0;
       padding: 0.5rem;
       border-bottom: 1px solid black;
       border-right: 1px solid black;
-
       ${'' /* In this example we use an absolutely position resizer,
        so this is required. */}
       position: relative;
@@ -39,8 +50,8 @@ const Styles = styled.div`
 
       .resizer {
         display: inline-block;
-        background: blue;
-        width: 10px;
+        background: black;
+        width: 5px;
         height: 100%;
         position: absolute;
         right: 0;
@@ -51,7 +62,7 @@ const Styles = styled.div`
         touch-action:none;
 
         &.isResizing {
-          background: red;
+          background: blue;
         }
       }
     }

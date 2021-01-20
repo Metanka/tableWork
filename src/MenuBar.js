@@ -7,7 +7,7 @@ import {ExpandLess} from '@material-ui/icons'
 import {ExpandMore} from '@material-ui/icons'
 import {Drawer} from '@material-ui/core'
 import {withStyles} from '@material-ui/core/styles'
-import {Link} from 'react-router-dom'
+import {Link, withRouter} from 'react-router-dom'
 
 const styles = {
     list: {
@@ -32,7 +32,6 @@ class MenuBar extends Component {
         super(props)
         this.menuItems = props.dataMenu
         this.state = {}
-        console.log(props.data)
     }
     // this method sets the current state of a menu item i.e whether it is in expanded or collapsed or a collapsed state
     handleClick(item) {
@@ -122,4 +121,4 @@ class MenuBar extends Component {
         )
     }
 }
-export default withStyles(styles)(MenuBar)
+export default withRouter(withStyles(styles)(MenuBar))

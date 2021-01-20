@@ -1,96 +1,189 @@
-import React from 'react'
+import {Button, makeStyles, TextField} from '@material-ui/core';
+import React, {useEffect, useMemo, useState} from 'react'
 import Styles from './Styles';
-import makeData from './makeData'
+import Cookies from 'js-cookie'
 import TableItems from './tableItems';
+import {TableData} from './apiServise';
+import {apiTable} from './api'
 
-const serverData = makeData(1000)
+const useStyles = makeStyles((theme) => ({
+    button: {
+        height: '40px',
+        margin: '5px'
+    },
+    form: {
+        maxWidth: '80vw',
+        width: '60vw',
+        display: 'flex',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        [theme.breakpoints.down('md')]: {
+            width: '50vw',
+          },
+          [theme.breakpoints.down('sm')]: {
+            maxWidth: '90vw',
+          },
+    },
+    input: {
+        margin: '5px'
+    }
+}));
 
 function Table() {
-  const columns = React.useMemo(
-    () => [
-      {
-        Header: 'Name',
-        columns: [
-          {
-            Header: 'First Name',
-            accessor: 'firstName',
-          },
-          {
-            Header: 'Last Name',
-            accessor: 'lastName',
-          },
+    const classes = useStyles();
+    const [serverData, setServerData] = useState([]);
+    const [values, setValues] = useState([]);
+    const [rowId, setRowId] = useState({});
+    const tableData = useMemo(() => new TableData(values, serverData), [values, serverData]);
+    const [data, setData] = React.useState([])
+    const [loading, setLoading] = React.useState(false)
+    const [pageCount, setPageCount] = React.useState(0)
+    const fetchIdRef = React.useRef(0)
+    const [id, setId] = React.useState('');
+    const [name, setName] = React.useState('');
+    const [entered, setEntered] = React.useState('');
+    const [updated, setUpdated] = React.useState('');
+
+    useEffect(() => {
+        if (!savedData()) {
+            apiTable.getMenu().then(json => {
+                const rowData = JSON.parse(JSON.stringify(json.value)).data
+                const initialData = rowData.map(element => {
+                    return {...element, entered: element.entered.slice(0, 10), updated: new Date(element.updated).toUTCString().slice(4, 22)};
+                });
+                setServerData(initialData)
+            })
+        } else {
+            setServerData(savedData())
+        }
+    }, [])
+
+    const savedData = () => {
+        if (!Cookies.get('changedData')) {
+            return
+        }
+        return JSON.parse(Cookies.get('changedData'))
+    }
+
+    const getLastValue = () => {
+        if (!Cookies.get('lastValue')) {
+            return ''
+        }
+        return JSON.parse(Cookies.get('lastValue'))
+    }
+    const lastValue = getLastValue();
+
+    const columns = React.useMemo(
+        () => [
+            {
+                Header: 'Info',
+                columns: [
+                    {
+                        Header: 'Id',
+                        accessor: 'id',
+                    },
+                    {
+                        Header: 'Name',
+                        accessor: 'name',
+                    },
+                ],
+            },
+            {
+                Header: 'Date',
+                columns: [
+                    {
+                        Header: 'Entered',
+                        accessor: 'entered',
+                    },
+                    {
+                        Header: 'Updated',
+                        accessor: 'updated',
+                    },
+                ],
+            },
         ],
-      },
-      {
-        Header: 'Info',
-        columns: [
-          {
-            Header: 'Age',
-            accessor: 'age',
-          },
-          {
-            Header: 'Visits',
-            accessor: 'visits',
-          },
-          {
-            Header: 'Status',
-            accessor: 'status',
-          },
-          {
-            Header: 'Profile Progress',
-            accessor: 'progress',
-          },
-        ],
-      },
-    ],
-    []
-  )
+        []
+    )
 
-  // We'll start our table without any data
-  const [data, setData] = React.useState([])
-  const [loading, setLoading] = React.useState(false)
-  const [pageCount, setPageCount] = React.useState(0)
-  const fetchIdRef = React.useRef(0)
+    const handleIdInput = (e) => {
+        setId(e.target.value);
+    }
 
-  const fetchData = React.useCallback(({ pageSize, pageIndex }) => {
-    // This will get called when the table needs new data
-    // You could fetch your data from literally anywhere,
-    // even a server. But for this example, we'll just fake it.
+    const handleNameInput = (e) => {
+        setName(e.target.value);
+    }
 
-    // Give this fetch an ID
-    const fetchId = ++fetchIdRef.current
+    const handleEnteredInput = (e) => {
+        setEntered(e.target.value);
+    }
 
-    // Set the loading state
-    setLoading(true)
+    const handleUpgradeInput = (e) => {
+        setUpdated(e.target.value);
+    }
 
-    // We'll even set a delay to simulate a server here
-    setTimeout(() => {
-      // Only update the data if this is the latest fetch
-      if (fetchId === fetchIdRef.current) {
-        const startRow = pageSize * pageIndex
-        const endRow = startRow + pageSize
-        setData(serverData.slice(startRow, endRow))
+    const handleClickCheckbox = (value) => setValues(value);
 
-        // Your server could send back total page count.
-        // For now we'll just fake it, too
-        setPageCount(Math.ceil(serverData.length / pageSize))
+    const prepareMainData = (formValue) => {
+        setServerData(tableData.changeData(Object.keys(rowId)[0], formValue))
+    }
 
-        setLoading(false)
-      }
-    }, 1000)
-  }, [])
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        prepareMainData({
+            id: id,
+            name: name,
+            entered: entered,
+            updated: updated
+        })
+        setId('')
+        setName('')
+        setEntered('')
+        setUpdated('')
+        Cookies.set('lastValue', `${JSON.stringify(values)}`)
+        Cookies.set('id', `${Object.keys(rowId)[0]}`)
+        Cookies.set('changedData', `${JSON.stringify(serverData)}`)
+    }
 
-  return (
-    <Styles>
-      <TableItems
-        columns={columns}
-        data={data}
-        fetchData={fetchData}
-        loading={loading}
-        pageCount={pageCount}
-      />
-    </Styles>
-  )
+    const fetchData = React.useCallback(({pageSize, pageIndex}) => {
+        const fetchId = ++fetchIdRef.current;
+        setLoading(true);
+        setTimeout(() => {
+            if (fetchId === fetchIdRef.current) {
+                const startRow = pageSize * pageIndex
+                const endRow = startRow + pageSize
+                setData(serverData.slice(startRow, endRow))
+                setPageCount(Math.ceil(serverData.length / pageSize))
+                setLoading(false)
+            }
+        }, 1000)
+    }, [serverData])
+
+    return (
+        <>
+            <form id='change-row-form' className={classes.form} noValidate autoComplete="off" onSubmit={handleSubmit}>
+                <TextField className={classes.input} onChange={handleIdInput} id="outlined-id" label="Id" size="small" variant="outlined" value={id || values.id || lastValue.id || ''} />
+                <TextField className={classes.input} onChange={handleNameInput} id="outlined-name" label="Name" size="small" variant="outlined" value={name || values.name || lastValue.name || ''} />
+                <TextField className={classes.input} onChange={handleEnteredInput} id="outlined-entered" label="Entered" size="small" variant="outlined" value={entered || values.entered || lastValue.entered || ''} />
+                <TextField className={classes.input} onChange={handleUpgradeInput} id="outlined-updated" label="Updated" size="small" variant="outlined" value={updated || values.updated || lastValue.updated || ''} />
+                <Button type='submit' className={classes.button} variant="outlined" color="primary">
+                    Сохранить
+            </Button>
+            </form>
+            <div>
+                <Styles>
+                    <TableItems
+                        columns={columns}
+                        data={data}
+                        fetchData={fetchData}
+                        loading={loading}
+                        pageCount={pageCount}
+                        onClickCheckbox={handleClickCheckbox}
+                        setRowId={setRowId}
+                    />
+                </Styles>
+            </div>
+        </>
+    )
 }
 
 export default Table

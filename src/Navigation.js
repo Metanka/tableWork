@@ -1,20 +1,12 @@
-import React, {useEffect, useState} from 'react';
-import {apiMenu} from './api';
+import React from 'react';
 import MenuBar from './MenuBar';
-import Table from './Table';
-import PropTypes from 'prop-types';
 import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import Hidden from '@material-ui/core/Hidden';
 import IconButton from '@material-ui/core/IconButton';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
 import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import MailIcon from '@material-ui/icons/Mail';
 import MenuIcon from '@material-ui/icons/Menu';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
@@ -58,24 +50,21 @@ const useStyles = makeStyles((theme) => ({
 const Navigation = (props) => {
     const classes = useStyles();
     const theme = useTheme();
-    const [store, setStore] = useState([])
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const {window} = props;
+    const store = props.menuData;
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
     };
 
-    useEffect(() =>
-        apiMenu.getMenu().then(data => setStore(data.value.data)).catch(err => console.log(err)), []
-    )
-
+    console.log(store);
     const drawer = (
         <div>
             <div className={classes.toolbar} />
             <Divider />
             <List>
-                {store.length !== 0 ? <MenuBar dataMenu={{data: store}} /> : ''}
+                {store.length !== 0 && <MenuBar dataMenu={{data: store}} />}
             </List>
         </div>
     );
@@ -84,7 +73,6 @@ const Navigation = (props) => {
 
     return (
         <>
-            
                 <CssBaseline />
                 <AppBar position="fixed" className={classes.appBar}>
                     <Toolbar>
