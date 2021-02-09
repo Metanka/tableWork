@@ -20,8 +20,6 @@ class Api {
             return this._getResponseData(res);
           });
       }
-
-      
 }
 
 export const apiMenu = new Api({
@@ -37,3 +35,13 @@ export const apiMenu = new Api({
       'Content-Type': 'application/json'
     }
   });
+
+
+  // а тут можно комментить/менять настройки запроса
+export const apiFts = new Api({
+    url: 'http://192.168.135.101:8080//api/v1/operative_monitoring/kt/posts?limit=10',
+    headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': 'false'
+    }
+});

@@ -3,8 +3,12 @@ import Table from './Table';
 import {makeStyles} from '@material-ui/core/styles';
 import Navigation from './Navigation.js';
 import {Route, Switch} from 'react-router';
-import {apiMenu} from './api';
-import BreadcrumbsMenu from './BreadcrumbsMenu'
+import {apiMenu, apiFts} from './api';
+import BreadcrumbsMenu from './BreadcrumbsMenu';
+
+
+// Выводит в консоль данные или ошибку
+apiFts.getMenu().then(res => console.log(res)).catch(err => console.log(err));
 
 const drawerWidth = 240;
 
